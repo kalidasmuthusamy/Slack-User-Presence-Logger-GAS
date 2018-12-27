@@ -1,14 +1,10 @@
 function initiateSlackUserCheck() {
-  var currHour = new Date().getHours();
-  if(currHour >= 17 && currHour <= 19 ) {
-    runSlackUsersWatcher();
-  }
+  runSlackUsersWatcher();
 }
 
 function runSlackUsersWatcher(){
-  var userConfigs = getUsersConfig(USER_GROUPS);
-  var notificationChannelIds = getNotificationChannels(NOTIFICATION_CHANNEL_IDS);
-  notifyChannelsWhenUserOnline(SLACK_ACCESS_TOKEN, userConfigs, notificationChannelIds, SPY_MODE, NOTIFY_IN_SLACK, NOTIFY_ONCE_PER_USER);
+  var userConfigs = getTrackableUsersConfig(USERS_CONFIG);
+  notifyChannelsWhenUserOnline(SLACK_ACCESS_TOKEN, userConfigs, SPY_MODE, NOTIFY_IN_SLACK, NOTIFY_ONCE_PER_USER);
 }
 
 function userProcessedToday(userId){
@@ -19,7 +15,7 @@ function userProcessedToday(userId){
 }
 
 
-function notifyChannelsWhenUserOnline(token, userConfigs, notificationChannelIds, spyModeActivated, enableSlackNotification, notifyOnce){
+function notifyChannelsWhenUserOnline(token, userConfigs, spyModeActivated, enableSlackNotification, notifyOnce){
   var loggerSheet = getLoggerSheet();
 
   userConfigs.forEach(function(userConfig){
@@ -37,7 +33,7 @@ function notifyChannelsWhenUserOnline(token, userConfigs, notificationChannelIds
           if(!notifyOnce || (notifyOnce && !isCurrentUserProcessed)){
             var message = userName + " is Online!";
 
-            notificationChannelIds.forEach(function (notificationChannelId) {
+            userConfig.notificationChannelIds.forEach(function (notificationChannelId) {
               postMessageToSlackChannel(token, notificationChannelId, message);
             });
           }
