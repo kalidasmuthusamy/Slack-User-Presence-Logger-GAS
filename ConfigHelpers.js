@@ -13,7 +13,7 @@ function getTrackableUsersConfig(userGroups) {
       return true;
     }
 
-    return (currHour >= timeWindowConfig['from'] && currHour < timeWindowConfig['to']);
+    return (currHour >= timeWindowConfig['from'] && currHour < timeWindowConfig['upto']);
   });
 
   return trackableUserConfigs;
