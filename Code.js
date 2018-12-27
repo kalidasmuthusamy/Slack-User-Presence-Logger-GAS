@@ -8,7 +8,7 @@ function initiateSlackUserCheck() {
 function runSlackUsersWatcher(){
   var userConfigs = getUsersConfig(USER_GROUPS);
   var notificationChannelIds = getNotificationChannels(NOTIFICATION_CHANNEL_IDS);
-  notifyChannelsWhenUserOnline(SLACK_ACCESS_TOKEN, userConfigs, notificationChannelIds, SPY_MODE, NOTIFY_IN_SLACK);
+  notifyChannelsWhenUserOnline(SLACK_ACCESS_TOKEN, userConfigs, notificationChannelIds, SPY_MODE, NOTIFY_IN_SLACK, NOTIFY_ONCE_PER_USER);
 }
 
 function userProcessedToday(userId){
@@ -19,7 +19,7 @@ function userProcessedToday(userId){
 }
 
 
-function notifyChannelsWhenUserOnline(token, userConfigs, notificationChannelIds, spyModeActivated, enableSlackNotification){
+function notifyChannelsWhenUserOnline(token, userConfigs, notificationChannelIds, spyModeActivated, enableSlackNotification, notifyOnce){
   var loggerSheet = getLoggerSheet();
 
   userConfigs.forEach(function(userConfig){
@@ -30,17 +30,21 @@ function notifyChannelsWhenUserOnline(token, userConfigs, notificationChannelIds
     var userPresenceStatus = userPresenceResponse["presence"];
 
     if (userPresenceStatus == ACTIVE_STATUS) {
-      if (spyModeActivated || !userProcessedToday(userId)) {
+      var isCurrentUserProcessed = userProcessedToday(userId);
+
+      if (spyModeActivated || !isCurrentUserProcessed) {
         if(enableSlackNotification) {
-          var message = userName + " is Online!";
+          if(!notifyOnce || (notifyOnce && !isCurrentUserProcessed)){
+            var message = userName + " is Online!";
 
-          notificationChannelIds.forEach(function(notificationChannelId){
-            postMessageToSlackChannel(token, notificationChannelId, message);
-          });
+            notificationChannelIds.forEach(function (notificationChannelId) {
+              postMessageToSlackChannel(token, notificationChannelId, message);
+            });
+          }
         }
-      }
 
-      loggerSheet.appendRow([new Date().toISOString(), userId, userName, userPresenceStatus]);
+        loggerSheet.appendRow([new Date().toISOString(), userId, userName, userPresenceStatus]);
+      }
     }
   });
 }
