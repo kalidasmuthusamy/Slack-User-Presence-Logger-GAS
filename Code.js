@@ -38,7 +38,9 @@ function notifyChannelsWhenUserOnline(token, userConfigs, spyModeActivated, enab
             });
           }
         }
+      }
 
+      if(!isCurrentUserProcessed){
         loggerSheet.appendRow([new Date().toISOString(), userId, userName, userPresenceStatus]);
       }
     }
